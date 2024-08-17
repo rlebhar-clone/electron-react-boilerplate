@@ -8,12 +8,21 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
+import 'reflect-metadata';
+
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  shell,
+  ipcMain,
+  clipboard,
+  screen,
+} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import { start } from './start';
 
 class AppUpdater {
   constructor() {
@@ -25,16 +34,10 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
-
-if (process.env.NODE_ENV === 'production') {
-  const sourceMapSupport = require('source-map-support');
-  sourceMapSupport.install();
-}
+// if (process.env.NODE_ENV === 'production') {
+//   const sourceMapSupport = require('source-map-support');
+//   sourceMapSupport.install();
+// }
 
 const isDebug =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
@@ -58,28 +61,32 @@ const installExtensions = async () => {
 
 const createWindow = async () => {
   if (isDebug) {
-    await installExtensions();
+    // await installExtensions();
   }
 
-  const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../assets');
-
-  const getAssetPath = (...paths: string[]): string => {
-    return path.join(RESOURCES_PATH, ...paths);
-  };
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
   mainWindow = new BrowserWindow({
-    show: false,
-    width: 1024,
-    height: 728,
-    icon: getAssetPath('icon.png'),
+    width,
+    height,
+    x: 0,
+    y: 0,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    skipTaskbar: true,
     webPreferences: {
+      nodeIntegration: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
+  app.commandLine.appendSwitch('disable-crash-reporter');
+  mainWindow.setIgnoreMouseEvents(true, { forward: true });
+  mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  mainWindow.setAlwaysOnTop(true, 'screen-saver', 1);
+  catchClickOnApp();
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
@@ -92,14 +99,13 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
     }
+    addEventListeners();
+    start(mainWindow);
   });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
-
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
 
   // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {
@@ -135,3 +141,38 @@ app
     });
   })
   .catch(console.log);
+
+function catchClickOnApp() {
+  setInterval(() => {
+    const point = screen.getCursorScreenPoint();
+    const [x, y] = mainWindow?.getPosition() || [0, 0];
+    const [w, h] = mainWindow?.getSize() || [0, 0];
+
+    if (point.x > x && point.x < x + w && point.y > y && point.y < y + h) {
+      updateIgnoreMouseEvents(point.x - x, point.y - y);
+    }
+  }, 300);
+
+  const updateIgnoreMouseEvents = async (x: number, y: number) => {
+    // capture 1x1 image of mouse position.
+    const image = await mainWindow?.webContents.capturePage({
+      x,
+      y,
+      width: 1,
+      height: 1,
+    });
+
+    var buffer = image?.getBitmap() || [];
+
+    // set ignore mouse events by alpha.
+    mainWindow?.setIgnoreMouseEvents(!buffer[3]);
+  };
+}
+import { getSelectedText, registerShortcut } from 'electron-selected-text';
+
+function addEventListeners() {
+  ipcMain.on('copy-to-clipboard', (event, text) => {
+    clipboard.writeText(text);
+  });
+  ipcMain.on('get-carret-text', (event, text) => {});
+}
