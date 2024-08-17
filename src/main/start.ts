@@ -8,28 +8,5 @@ export async function start(mainWindow: BrowserWindow) {
   // console.log(response);
   // OSService.addTabListener(mainWindow);
   // OSService.exposeNativeFunctionsToRenderer(mainWindow);
-  setInterval(async () => {
-    const text = await getSelectedText(mainWindow);
-    console.log('selected text', text);
-  }, 1000);
-}
-function getSelectedText(mainWindow: BrowserWindow): Promise<string> {
-  return new Promise((resolve) => {
-    const originalClipboardContent = clipboard.readText();
-    console.log('originalClipboardContent', originalClipboardContent);
-    // Clear clipboard and copy selected text
-    clipboard.writeText('');
-    console.log('copying');
-    mainWindow.webContents.copy();
-
-    // Wait a bit for the clipboard to update
-    setTimeout(() => {
-      const selectedText = clipboard.readText();
-      console.log('read new text', selectedText);
-      // Restore original clipb oard content
-      clipboard.writeText(originalClipboardContent);
-
-      resolve(selectedText);
-    }, 100);
-  });
+  setInterval(async () => {}, 1000);
 }
