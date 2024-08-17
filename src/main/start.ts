@@ -1,6 +1,8 @@
 import { BrowserWindow, clipboard } from 'electron';
 import { LangChainService } from './services/langchain/langchain.service';
 // import { OSService } from './services/os.service';
+// import  caretAddon  from "./build/Release/caret"
+import carret from '../../release/app/build';
 
 export async function start(mainWindow: BrowserWindow) {
   // const langchainService = LangChainService.getInstance();
