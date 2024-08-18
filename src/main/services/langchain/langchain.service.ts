@@ -1,26 +1,31 @@
 import { Ollama } from '@langchain/ollama';
 import { FewShotPromptTemplate, PromptTemplate } from '@langchain/core/prompts';
-import { EXAMPLE_PROMPT_IMPROV, EXAMPLES } from './examples';
+import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import { EXAMPLES } from './examples';
 import {
   ExposableToRenderer,
   exposedToRenderer,
-} from '../../expose-renderer.decorator';
+} from '../../utils/expose-renderer.decorator';
 
 interface ControllerEntry {
   id: string;
   controller: AbortController;
 }
 
-import { v4 as uuidv4 } from 'uuid';
-import fs from 'fs';
-
 @ExposableToRenderer()
 export class LangChainService {
+  // eslint-disable-next-line no-use-before-define
   private static instance: LangChainService | null = null;
+
   static context: string = '';
+
   static llm: Ollama;
+
   public static abortControllers: ControllerEntry[] = [];
+
   private examplePrompt: PromptTemplate;
+
   private prompt: FewShotPromptTemplate;
 
   private prompts = {
@@ -49,6 +54,7 @@ export class LangChainService {
       Complete the input : {input} so it sounds more professional, remove all grammar errors.
       Never comment on your anwser, do not provide any explanation.`),
   };
+
   // private memory: BufferMemory;
   constructor() {
     console.log('Setup ollama...');
@@ -79,20 +85,21 @@ export class LangChainService {
       inputVariables: ['sentence', 'context', 'applicationName'],
     });
   }
+
   getContext(): string {
     return LangChainService.context;
   }
+
   public static getInstance(): LangChainService {
     if (LangChainService.instance === null) {
       LangChainService.instance = new LangChainService();
-    } else {
     }
     return LangChainService.instance;
   }
 
   @exposedToRenderer()
   async addContext(newContext: string) {
-    LangChainService.context += '\n\n\n' + newContext;
+    LangChainService.context += `\n\n\n${newContext}`;
     fs.writeFileSync('context.txt', LangChainService.context);
     console.log('Context added...');
   }
@@ -139,7 +146,9 @@ export class LangChainService {
       );
       entry.controller.abort();
     });
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => {
+      setTimeout(resolve, 50);
+    });
 
     LangChainService.abortControllers = [];
   }
@@ -186,6 +195,7 @@ export class LangChainService {
         this.removeAbortController(id);
         return response;
       }
+      return null;
     } catch (error) {
       console.log('ERROR', error);
       this.removeAbortController(id);

@@ -11,14 +11,7 @@
 import 'reflect-metadata';
 
 import path from 'path';
-import {
-  app,
-  BrowserWindow,
-  shell,
-  ipcMain,
-  clipboard,
-  screen,
-} from 'electron';
+import { app, BrowserWindow, shell, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import { resolveHtmlPath } from './util';
@@ -86,7 +79,6 @@ const createWindow = async () => {
   mainWindow.setIgnoreMouseEvents(true, { forward: true });
   mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   mainWindow.setAlwaysOnTop(true, 'screen-saver', 1);
-  catchClickOnApp();
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
@@ -99,7 +91,7 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
     }
-    addEventListeners();
+
     start(mainWindow);
   });
 
@@ -141,38 +133,3 @@ app
     });
   })
   .catch(console.log);
-
-function catchClickOnApp() {
-  setInterval(() => {
-    const point = screen.getCursorScreenPoint();
-    const [x, y] = mainWindow?.getPosition() || [0, 0];
-    const [w, h] = mainWindow?.getSize() || [0, 0];
-
-    if (point.x > x && point.x < x + w && point.y > y && point.y < y + h) {
-      updateIgnoreMouseEvents(point.x - x, point.y - y);
-    }
-  }, 300);
-
-  const updateIgnoreMouseEvents = async (x: number, y: number) => {
-    // capture 1x1 image of mouse position.
-    const image = await mainWindow?.webContents.capturePage({
-      x,
-      y,
-      width: 1,
-      height: 1,
-    });
-
-    var buffer = image?.getBitmap() || [];
-
-    // set ignore mouse events by alpha.
-    mainWindow?.setIgnoreMouseEvents(!buffer[3]);
-  };
-}
-import { getSelectedText, registerShortcut } from 'electron-selected-text';
-
-function addEventListeners() {
-  ipcMain.on('copy-to-clipboard', (event, text) => {
-    clipboard.writeText(text);
-  });
-  ipcMain.on('get-carret-text', (event, text) => {});
-}
