@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import { TextSelector } from './text-selector.abtract';
 
 export class TextSelectorServiceMac extends TextSelector {
@@ -12,7 +13,7 @@ export class TextSelectorServiceMac extends TextSelector {
   }
 
   addCarretTextListener() {
-    setInterval(async () => {
+    setInterval(() => {
       console.log('mac carret');
     }, 1000);
   }

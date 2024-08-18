@@ -70,7 +70,7 @@ const createWindow = async () => {
     resizable: false,
     alwaysOnTop: true,
     webPreferences: {
-      devTools: false,
+      // devTools: false,
       nodeIntegration: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
