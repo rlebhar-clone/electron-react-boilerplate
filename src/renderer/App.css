@@ -3,4 +3,5 @@
 @tailwind utilities;
 
 body #root {
+  background-color: transparent !important;
 }

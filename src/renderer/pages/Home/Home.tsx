@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 
-import { CarretData } from '../../../types/carret-type';
 import {
   ArrowRightToLine,
   Copy,
@@ -10,8 +9,10 @@ import {
   SpellCheck,
   Wand2,
 } from 'lucide-react';
+import { CarretData } from '../../../types/carret-type';
 import { LLMMode } from '../../../main/services/langchain/langchain.service.type';
 import { ActionButtons } from './ActionButtons';
+
 const RELATIVE_ORIGIN_FROM_INPUT = {
   x: 400,
   y: 50,
@@ -39,7 +40,7 @@ export function Home(p: {}) {
           key={delay}
           className={dotClassName}
           style={{ animationDelay: `${delay}ms` }}
-        ></div>
+        />
       ))}
     </div>
   );
@@ -92,23 +93,18 @@ export function Home(p: {}) {
   );
 
   return (
-    <>
-      <div
-        className=" absolute"
-        style={{
-          // left: `${carretData.x - RELATIVE_ORIGIN_FROM_INPUT.x}px`,
-          // top: `${carretData.y - RELATIVE_ORIGIN_FROM_INPUT.y}px`,
-          left: 200,
-          top: 200,
-        }}
-      >
-        <ActionButtons
-          activeMode={currentMode}
-          setActiveMode={setCurrentMode}
-        />
-        {aiSuggestionBox}
-      </div>
-    </>
+    <div
+      className=" absolute"
+      style={{
+        // left: `${carretData.x - RELATIVE_ORIGIN_FROM_INPUT.x}px`,
+        // top: `${carretData.y - RELATIVE_ORIGIN_FROM_INPUT.y}px`,
+        left: 200,
+        top: 200,
+      }}
+    >
+      <ActionButtons activeMode={currentMode} setActiveMode={setCurrentMode} />
+      {aiSuggestionBox}
+    </div>
   );
   // <div className="p-8 h-full text-md">
   //   <AutocompleteTextbox

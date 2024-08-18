@@ -64,11 +64,13 @@ const createWindow = async () => {
     height,
     x: 0,
     y: 0,
-    frame: false,
+    titleBarStyle: 'hidden',
     transparent: true,
+    frame: false,
+    resizable: false,
     alwaysOnTop: true,
-    skipTaskbar: true,
     webPreferences: {
+      devTools: false,
       nodeIntegration: true,
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')

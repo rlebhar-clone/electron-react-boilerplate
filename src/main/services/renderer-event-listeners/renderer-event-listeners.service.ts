@@ -32,23 +32,20 @@ export class RendererEventListenersService {
   private enableMouseListenerOnRenderer() {
     setInterval(async () => {
       const point = screen.getCursorScreenPoint();
-      const [x, y] = this.mainWindow?.getPosition() || [0, 0];
-      const [w, h] = this.mainWindow?.getSize() || [0, 0];
 
-      if (point.x > x && point.x < x + w && point.y > y && point.y < y + h) {
-        // capture 1x1 image of mouse position.
-        const image = await this.mainWindow?.webContents.capturePage({
-          x,
-          y,
-          width: 1,
-          height: 1,
-        });
+      // capture 1x1 image of mouse position.
+      const image = await this.mainWindow?.webContents.capturePage({
+        x: point.x,
+        y: point.y,
+        width: 1,
+        height: 1,
+      });
 
-        const buffer = image?.getBitmap() || [];
+      const buffer = image?.getBitmap() || [];
 
-        // set ignore mouse events by alpha.
-        this.mainWindow?.setIgnoreMouseEvents(!buffer[3]);
-      }
+      const ignore = buffer[3] === 0;
+      // set ignore mouse events by alpha.
+      this.mainWindow?.setIgnoreMouseEvents(ignore);
     }, 300);
   }
 }
