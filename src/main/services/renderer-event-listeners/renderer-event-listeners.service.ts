@@ -1,4 +1,4 @@
-import { ipcMain, clipboard, screen, BrowserWindow } from 'electron';
+import { ipcMain, clipboard, BrowserWindow } from 'electron';
 
 export class RendererEventListenersService {
   private mainWindow: BrowserWindow | null = null;
@@ -24,28 +24,5 @@ export class RendererEventListenersService {
     ipcMain.on('copy-to-clipboard', (event, text) => {
       clipboard.writeText(text);
     });
-    ipcMain.on('get-carret-text', (event, text) => {});
-
-    this.enableMouseListenerOnRenderer();
-  }
-
-  private enableMouseListenerOnRenderer() {
-    setInterval(async () => {
-      const point = screen.getCursorScreenPoint();
-
-      // capture 1x1 image of mouse position.
-      const image = await this.mainWindow?.webContents.capturePage({
-        x: point.x,
-        y: point.y,
-        width: 1,
-        height: 1,
-      });
-
-      const buffer = image?.getBitmap() || [];
-
-      const ignore = buffer[3] === 0;
-      // set ignore mouse events by alpha.
-      this.mainWindow?.setIgnoreMouseEvents(ignore);
-    }, 300);
   }
 }
