@@ -1,10 +1,9 @@
-import { Input } from '@/renderer/components/ui/input';
-import { cn, logToMain } from '@/renderer/libs/utils';
+import { logToMain } from '@/renderer/libs/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { PlaceholdersAndVanishInput } from '../ui/placeholders-and-vanish-input';
 
-const placeholders = ['Ask any question !'];
+const placeholders = ['Ask any question and press enter !'];
 export function InputLLM(p: {
   value: string;
   onChange: (value: string) => void;
