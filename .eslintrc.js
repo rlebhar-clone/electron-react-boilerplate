@@ -21,6 +21,7 @@ module.exports = {
     'consistent-return': 'off',
     'react/destructuring-assignment': 'off',
     'global-require': 'off',
+    'react/require-default-props': 'off',
   },
   parserOptions: {
     ecmaVersion: 2022,

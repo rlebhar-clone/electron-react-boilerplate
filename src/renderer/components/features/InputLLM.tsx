@@ -1,8 +1,10 @@
 import { Input } from '@/renderer/components/ui/input';
 import { cn, logToMain } from '@/renderer/libs/utils';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import { PlaceholdersAndVanishInput } from '../ui/placeholders-and-vanish-input';
 
+const placeholders = ['Ask any question !'];
 export function InputLLM(p: {
   value: string;
   onChange: (value: string) => void;
@@ -18,6 +20,13 @@ export function InputLLM(p: {
       }
     });
   }, []);
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value);
+  };
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log('submitted');
+  };
   return (
     <AnimatePresence>
       {isVisible && (
@@ -40,7 +49,7 @@ export function InputLLM(p: {
             }
           }}
         >
-          <Input
+          {/* <Input
             id="input-llm"
             value={p.value}
             onChange={(e) => p.onChange(e.target.value)}
@@ -49,6 +58,14 @@ export function InputLLM(p: {
               'shadow-md placeholder:font-light placeholder:italic text-md  focus-visible:ring-0 focus-visible:ring-transparent focus-visible:ring-offset-0',
             )}
             autoFocus
+          /> */}
+          <PlaceholdersAndVanishInput
+            placeholders={placeholders}
+            onChange={handleChange}
+            onSubmit={onSubmit}
+            inputProps={{
+              autoFocus: true,
+            }}
           />
         </motion.div>
       )}
