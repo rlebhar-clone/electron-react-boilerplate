@@ -20,6 +20,7 @@ module.exports = {
     'no-console': 'off',
     'consistent-return': 'off',
     'react/destructuring-assignment': 'off',
+    'global-require': 'off',
   },
   parserOptions: {
     ecmaVersion: 2022,

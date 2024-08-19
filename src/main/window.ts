@@ -9,15 +9,17 @@ export function initWindow() {
     width: 1,
     x: 0,
     y: 0,
+    // show: false,
     show: false,
     frame: false,
     transparent: true,
+    // transparent: false,
     alwaysOnTop: true,
     hasShadow: false,
-    // backgroundColor: 'red',
     visualEffectState: 'inactive',
     webPreferences: {
       devTools: false,
+      // devTools: true,
       nodeIntegration: true,
       contextIsolation: true,
       preload: app.isPackaged
@@ -25,8 +27,10 @@ export function initWindow() {
         : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
+
   app.commandLine.appendSwitch('disable-crash-reporter');
   mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+
   // mainWindow.setAlwaysOnTop(true, 'screen-saver', 1);
 
   mainWindow.webContents.on('did-finish-load', async () => {
@@ -36,8 +40,7 @@ export function initWindow() {
       [document.getElementById("container").offsetWidth, document.getElementById("container").offsetHeight]
     `,
       );
-      console.log(width, height);
-      console.log(screen.getPrimaryDisplay().workAreaSize.width);
+      console.log('height', height, 'width', width);
       mainWindow.setContentSize(width, height);
       mainWindow.setPosition(
         screen.getPrimaryDisplay().workAreaSize.width / 2 - width / 2,
