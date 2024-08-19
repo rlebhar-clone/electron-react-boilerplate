@@ -27,7 +27,7 @@ export class EventListenersService {
 
   private addRendererLogListener() {
     ipcMain.on('log', (event, args) => {
-      console.log('Log render : ', args);
+      console.log('Log renderer : ', args);
     });
   }
 
@@ -51,6 +51,7 @@ export class EventListenersService {
           data: { shortcut: 'CommandOrControl+Shift+P' },
         });
         if (this.mainWindow?.isVisible() === false) {
+          console.log('open window');
           this.mainWindow.show();
         }
       }
