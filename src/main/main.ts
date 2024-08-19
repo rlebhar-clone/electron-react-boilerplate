@@ -10,12 +10,14 @@
  */
 import 'reflect-metadata';
 
-import path from 'path';
-import { app, BrowserWindow, shell, screen } from 'electron';
+import { app, BrowserWindow, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import { resolveHtmlPath } from './util';
 import { start } from './start';
+import { initWindow } from './window';
+
+let mainWindow: BrowserWindow | null = null;
 
 class AppUpdater {
   constructor() {
@@ -24,8 +26,6 @@ class AppUpdater {
     autoUpdater.checkForUpdatesAndNotify();
   }
 }
-
-let mainWindow: BrowserWindow | null = null;
 
 // if (process.env.NODE_ENV === 'production') {
 //   const sourceMapSupport = require('source-map-support');
@@ -57,46 +57,17 @@ const createWindow = async () => {
     // await installExtensions();
   }
 
-  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-
-  mainWindow = new BrowserWindow({
-    width,
-    height,
-    x: 0,
-    y: 0,
-    titleBarStyle: 'hidden',
-    transparent: true,
-    frame: false,
-    resizable: false,
-    alwaysOnTop: true,
-    webPreferences: {
-      // devTools: false,
-      nodeIntegration: true,
-      preload: app.isPackaged
-        ? path.join(__dirname, 'preload.js')
-        : path.join(__dirname, '../../.erb/dll/preload.js'),
-    },
-  });
-  app.commandLine.appendSwitch('disable-crash-reporter');
-  mainWindow.setIgnoreMouseEvents(true, { forward: true });
-  mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-  mainWindow.setAlwaysOnTop(true, 'screen-saver', 1);
+  mainWindow = initWindow();
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
-      throw new Error('"mainWindow" is not defined');
-    }
-    if (process.env.START_MINIMIZED) {
-      mainWindow.minimize();
-    } else {
-      mainWindow.show();
+      throw new Error('mainWindow" is not defined');
     }
 
     start(mainWindow);
   });
-
   mainWindow.on('closed', () => {
     mainWindow = null;
   });

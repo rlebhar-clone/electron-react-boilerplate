@@ -1,12 +1,18 @@
-import _ from 'lodash';
+import { useEffect, useState } from 'react';
+import { InputLLM } from '../../components/features/InputLLM';
 
-export function Home(p: {}) {
-  return <div style={{ position: 'absolute', left: 200, top: 200 }}>Hello</div>;
-  // <div className="p-8 h-full text-md">
-  //   <AutocompleteTextbox
-  //     debounceTime={0}
-  //     className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-1 focus:ring-blue-100"
-  //     getSuggestion={AIService.getInstance().getAutoCompletedSentence}
-  //   />
-  // </div>
+export function Home() {
+  const [value, setValue] = useState<string>('');
+  const handleGlobalShortcut = (e: { data: { shortcut: string } }) => {
+    console.log('global-shortcut', e);
+  };
+  useEffect(() => {
+    window.electron.ipcRenderer.on('global-shortcut', handleGlobalShortcut);
+  }, []);
+
+  return (
+    <div id="container" className="w-[500px] p-1">
+      <InputLLM value={value} onChange={setValue} />
+    </div>
+  );
 }

@@ -16,6 +16,10 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'class-methods-use-this': 'off',
     'max-classes-per-file': 'off',
+    'react/jsx-props-no-spreading': 'off',
+    'no-console': 'off',
+    'consistent-return': 'off',
+    'react/destructuring-assignment': 'off',
   },
   parserOptions: {
     ecmaVersion: 2022,

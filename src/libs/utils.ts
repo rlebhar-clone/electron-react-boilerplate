@@ -1,10 +1,3 @@
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
 export enum KeyCodes {
   ENTER = '@10',
   BACK_SPACE = '@8',
