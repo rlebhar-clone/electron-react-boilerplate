@@ -1,14 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 
-import {
-  ArrowRightToLine,
-  Copy,
-  Globe,
-  Rocket,
-  SpellCheck,
-  Wand2,
-} from 'lucide-react';
+import { ArrowRightToLine, Copy, Wand2 } from 'lucide-react';
+import { useCallback, useRef, useState } from 'react';
 import { CarretData } from '../../../types/carret-type';
 import { LLMMode } from '../../../main/services/langchain/langchain.service.type';
 import { ActionButtons } from './ActionButtons';
@@ -62,7 +55,6 @@ export function Home(p: {}) {
   );
 
   const handleCopyToClipboard = useCallback(() => {
-    console.log('copy-to-clipboard front', suggestion);
     window.electron.ipcRenderer.sendMessage('copy-to-clipboard', suggestion);
   }, [suggestion]);
 
