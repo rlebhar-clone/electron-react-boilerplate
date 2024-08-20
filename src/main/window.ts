@@ -40,7 +40,6 @@ export function initWindow() {
       [document.getElementById("container").offsetWidth, document.getElementById("container").offsetHeight]
     `,
       );
-      console.log('height', height, 'width', width);
       mainWindow.setContentSize(width, height);
       mainWindow.setPosition(
         screen.getPrimaryDisplay().workAreaSize.width / 2 - width / 2,

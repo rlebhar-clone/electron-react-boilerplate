@@ -1,4 +1,6 @@
 import { BrowserWindow, globalShortcut, ipcMain } from 'electron';
+import { LangChainService } from '../langchain/langchain.service';
+import { LLMMode } from '../langchain/langchain.service.type';
 
 export class EventListenersService {
   private mainWindow: BrowserWindow | null = null;
@@ -23,6 +25,22 @@ export class EventListenersService {
     this.addCmdShiftPListener();
     this.addRendererLogListener();
     this.addRendererListenerRequestCloseWindow();
+    this.addLangchainRequestListener();
+  }
+
+  private addLangchainRequestListener() {
+    ipcMain.on(
+      'LangchainService:requestLLM',
+      async (event, { input, mode }: { input: string; mode: LLMMode }) => {
+        console.log('receive eventn LangchainService:requestLLM');
+        const response = await LangChainService.getInstance().requestLLM(
+          input,
+          mode,
+        );
+        console.log('response', response);
+        event.sender.send('LangchainService:requestLLM-reply', response);
+      },
+    );
   }
 
   private addRendererLogListener() {

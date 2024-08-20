@@ -6,7 +6,9 @@ export type Channels =
   | 'global-shortcut'
   | 'log'
   | 'request-close-window'
-  | 'request-open-window';
+  | 'request-open-window'
+  | 'LangchainService:requestLLM'
+  | 'LangchainService:requestLLM-reply';
 
 const electronHandler = {
   ipcRenderer: {

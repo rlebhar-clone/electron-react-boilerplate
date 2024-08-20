@@ -1,1 +1,6 @@
-export type LLMMode = 'language' | 'spelling' | 'improve' | 'complete';
+export type LLMMode =
+  | 'spelling'
+  | 'improve'
+  | 'complete'
+  | 'question'
+  | 'translate';
