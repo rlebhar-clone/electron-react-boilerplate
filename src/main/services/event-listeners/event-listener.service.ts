@@ -32,12 +32,10 @@ export class EventListenersService {
     ipcMain.on(
       'LangchainService:requestLLM',
       async (event, { input, mode }: { input: string; mode: LLMMode }) => {
-        console.log('receive eventn LangchainService:requestLLM');
         const response = await LangChainService.getInstance().requestLLM(
           input,
           mode,
         );
-        console.log('response', response);
         event.sender.send('LangchainService:requestLLM-reply', response);
       },
     );
