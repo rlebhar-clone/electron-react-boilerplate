@@ -6,7 +6,6 @@ export function SearchBar(p: {
   value: string;
   onChange: (value: string) => void;
   onSubmit: (value: string) => void;
-  isLoading: boolean;
 }) {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     p.onChange(e.target.value);
@@ -16,14 +15,15 @@ export function SearchBar(p: {
     p.onSubmit(p.value);
   };
   return (
-    <PlaceholdersAndVanishInput
-      placeholders={placeholders}
-      onChange={handleChange}
-      onSubmit={onSubmit}
-      inputProps={{
-        autoFocus: true,
-      }}
-      isLoading={p.isLoading}
-    />
+    <div className="interactive w-96">
+      <PlaceholdersAndVanishInput
+        placeholders={placeholders}
+        onChange={handleChange}
+        onSubmit={onSubmit}
+        inputProps={{
+          autoFocus: true,
+        }}
+      />
+    </div>
   );
 }

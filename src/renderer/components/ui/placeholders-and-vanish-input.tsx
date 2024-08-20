@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { cn } from 'src/renderer/libs/utils';
+import { cn, logToMain } from 'src/renderer/libs/utils';
 import { InputProps } from './input';
 
 export function PlaceholdersAndVanishInput({
@@ -8,17 +8,20 @@ export function PlaceholdersAndVanishInput({
   onChange,
   onSubmit,
   inputProps,
-  isLoading = false,
 }: {
   placeholders: string[];
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   inputProps?: InputProps;
-  isLoading?: boolean;
 }) {
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const newDataRef = useRef<any[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {}, []);
   const startAnimation = () => {
     intervalRef.current = setInterval(() => {
       setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
@@ -45,9 +48,6 @@ export function PlaceholdersAndVanishInput({
     };
   }, [placeholders]);
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const newDataRef = useRef<any[]>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState('');
   const [animating, setAnimating] = useState(false);
 
@@ -204,7 +204,7 @@ export function PlaceholdersAndVanishInput({
         value={value}
         type="text"
         className={cn(
-          'w-full relative text-sm sm:text-base z-50 border-none  bg-transparent pt-4 text-black rounded-full focus:outline-none focus:ring-0 pl-4 sm:pl-10 pr-20',
+          'interactive w-full relative text-sm sm:text-base z-50 border-none  bg-transparent pt-[0.85rem] text-black rounded-full focus:outline-none focus:ring-0 pl-4 sm:pl-10 pr-20',
           animating && 'text-transparent bg-transparent',
         )}
         {...inputProps}
@@ -274,7 +274,7 @@ export function PlaceholdersAndVanishInput({
                 duration: 0.3,
                 ease: 'linear',
               }}
-              className="dark:text-zinc-500 text-sm sm:text-base font-normal text-neutral-500 pl-4 sm:pl-12 text-left w-[calc(100%-2rem)] truncate"
+              className="dark:text-zinc-500 text-sm sm:text-base font-normal text-neutral-500  pt-1 pl-10 text-left w-[calc(100%-2rem)] truncate"
             >
               {placeholders[currentPlaceholder]}
             </motion.p>

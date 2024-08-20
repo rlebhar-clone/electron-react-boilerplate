@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { logToMain } from '@/renderer/libs/utils';
+import {
+  cn,
+  logToMain,
+  makeInteractiveClassClickable,
+} from '@/renderer/libs/utils';
 import { LoadingSpinner } from '@/renderer/components/ui/loading-spinner';
 import { SearchBar } from '../../components/features/searchbar';
 
@@ -10,7 +14,17 @@ export function Home() {
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
+  useEffect(makeInteractiveClassClickable, []);
+
+  useEffect(
+    function focusWindowOnVisible() {
+      if (isVisible) {
+        window.electron.ipcRenderer.sendMessage('request-focus-window');
+      }
+    },
+    [isVisible],
+  );
+  useEffect(function listenToCmd() {
     window.electron.ipcRenderer.on('global-shortcut', (e) => {
       if (e.data.shortcut === 'CommandOrControl+Shift+P') {
         setIsVisible((prev) => {
@@ -18,17 +32,23 @@ export function Home() {
         });
       }
     });
+    window.electron.ipcRenderer.on('global-shortcut', (e) => {
+      if (e.data.shortcut === 'Escape') {
+        setIsVisible(false);
+      }
+    });
   }, []);
-  useEffect(() => {
+
+  useEffect(function sendLLMRequest() {
     window.electron.ipcRenderer.on(
       'LangchainService:requestLLM-reply',
       (reply) => {
         setResponse(reply);
-
         setIsLoading(false);
       },
     );
   }, []);
+
   const handleSubmit = async (v: string) => {
     if (v !== '') {
       setResponse('');
@@ -39,8 +59,12 @@ export function Home() {
       setIsLoading(true);
     }
   };
+
   return (
-    <div id="container" className="w-[500px]  h-96 p-1">
+    <div
+      id="container"
+      className={cn('w-full h-full flex', isVisible && 'bg-white/20')}
+    >
       <AnimatePresence>
         {isVisible && (
           <motion.div
@@ -58,22 +82,21 @@ export function Home() {
               opacity: number;
               y: number;
             }) => {
-              logToMain(definition);
               if (definition.opacity === 0) {
-                window.electron.ipcRenderer.sendMessage('request-close-window');
+                // window.electron.ipcRenderer.sendMessage('request-close-window');
                 setValue('');
                 setResponse('');
               }
             }}
           >
             <SearchBar
-              isLoading={isLoading}
               value={value}
               onChange={setValue}
               onSubmit={handleSubmit}
             />
+
             {(isLoading || response) && (
-              <div className="mt-4 p-4  rounded-md bg-white animate-in">
+              <div className="mt-4 p-4 rounded-md bg-white bg-opacity-80 animate-in">
                 {response}
                 {isLoading && <LoadingSpinner />}
               </div>

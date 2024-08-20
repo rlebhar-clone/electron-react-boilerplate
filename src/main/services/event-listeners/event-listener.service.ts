@@ -22,10 +22,26 @@ export class EventListenersService {
   }
 
   public addMainEventListeners() {
-    this.addCmdShiftPListener();
+    this.addCmdSListeners();
     this.addRendererLogListener();
-    this.addRendererListenerRequestCloseWindow();
+    // this.addRendererListenerRequestCloseWindow();
     this.addLangchainRequestListener();
+    this.addIgnoreMouseEventListener();
+    this.addFocusRequestListener();
+  }
+
+  private addFocusRequestListener() {
+    ipcMain.on('request-focus-window', () => {
+      console.log('focus');
+      this.mainWindow?.focus();
+    });
+  }
+
+  private addIgnoreMouseEventListener() {
+    ipcMain.on('set-ignore-mouse-events', (event, ignore, options) => {
+      const win = BrowserWindow.fromWebContents(event.sender);
+      win?.setIgnoreMouseEvents(ignore, options);
+    });
   }
 
   private addLangchainRequestListener() {
@@ -54,7 +70,7 @@ export class EventListenersService {
     });
   }
 
-  private addCmdShiftPListener() {
+  private addCmdSListeners() {
     let lastCallTime = 0;
     const debounceTime = 350; // Prevent spam
 
@@ -62,15 +78,15 @@ export class EventListenersService {
       const currentTime = Date.now();
       if (currentTime - lastCallTime >= debounceTime) {
         lastCallTime = currentTime;
-
         this.mainWindow?.webContents.send('global-shortcut', {
           data: { shortcut: 'CommandOrControl+Shift+P' },
         });
-        if (this.mainWindow?.isVisible() === false) {
-          console.log('open window');
-          this.mainWindow.show();
-        }
       }
+    });
+    globalShortcut.register('Escape', () => {
+      this.mainWindow?.webContents.send('global-shortcut', {
+        data: { shortcut: 'Escape' },
+      });
     });
   }
 }

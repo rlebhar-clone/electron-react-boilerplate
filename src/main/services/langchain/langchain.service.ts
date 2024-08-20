@@ -81,15 +81,9 @@ export class LangChainService {
 
     try {
       const promptString = PROMPT_TEMPLATES[mode];
-      console.time('promptTemplate');
-      // const promptTemplate = PromptTemplate.fromTemplate(promptString).pipe(
-      //   LangChainService.llm,
-      // );
-      console.timeEnd('promptTemplate');
+
       LangChainService.abortControllers.push({ id, controller });
-      console.time('invoke');
       const response = await LangChainService.llm.invoke(promptString + input);
-      console.timeEnd('invoke');
       this.removeAbortController(id);
       return response;
     } catch (error) {

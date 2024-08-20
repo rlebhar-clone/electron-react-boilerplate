@@ -8,7 +8,9 @@ export type Channels =
   | 'request-close-window'
   | 'request-open-window'
   | 'LangchainService:requestLLM'
-  | 'LangchainService:requestLLM-reply';
+  | 'LangchainService:requestLLM-reply'
+  | 'set-ignore-mouse-events'
+  | 'request-focus-window';
 
 const electronHandler = {
   ipcRenderer: {
