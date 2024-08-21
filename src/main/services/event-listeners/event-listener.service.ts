@@ -28,12 +28,19 @@ export class EventListenersService {
     this.addLangchainRequestListener();
     this.addIgnoreMouseEventListener();
     this.addFocusRequestListener();
+    this.addBlurListener();
   }
 
   private addFocusRequestListener() {
     ipcMain.on('request-focus-window', () => {
-      console.log('focus');
       this.mainWindow?.focus();
+    });
+  }
+
+  private addBlurListener() {
+    this.mainWindow?.on('blur', () => {
+      console.log('blur');
+      this.mainWindow?.webContents.send('on-main-window-blur');
     });
   }
 

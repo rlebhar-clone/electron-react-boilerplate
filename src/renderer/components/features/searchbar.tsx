@@ -15,7 +15,7 @@ export function SearchBar(p: {
     p.onSubmit(p.value);
   };
   return (
-    <div className="interactive w-96">
+    <div>
       <PlaceholdersAndVanishInput
         placeholders={placeholders}
         onChange={handleChange}

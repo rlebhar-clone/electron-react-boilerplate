@@ -6,6 +6,7 @@ import {
   makeInteractiveClassClickable,
 } from '@/renderer/libs/utils';
 import { LoadingSpinner } from '@/renderer/components/ui/loading-spinner';
+import { LangChainService } from '@/main/services/langchain/langchain.service';
 import { SearchBar } from '../../components/features/searchbar';
 
 export function Home() {
@@ -14,17 +15,24 @@ export function Home() {
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const closeAndReset = () => {
+    setIsVisible(false);
+    setResponse('');
+    setIsLoading(false);
+  };
+
   useEffect(makeInteractiveClassClickable, []);
 
   useEffect(
-    function focusWindowOnVisible() {
+    function focusMainWindowOnVisible() {
       if (isVisible) {
         window.electron.ipcRenderer.sendMessage('request-focus-window');
       }
     },
     [isVisible],
   );
-  useEffect(function listenToCmd() {
+
+  useEffect(function addOpenCloseListener() {
     window.electron.ipcRenderer.on('global-shortcut', (e) => {
       if (e.data.shortcut === 'CommandOrControl+Shift+P') {
         setIsVisible((prev) => {
@@ -37,26 +45,34 @@ export function Home() {
         setIsVisible(false);
       }
     });
+    window.electron.ipcRenderer.on('on-main-window-blur', () => {
+      closeAndReset();
+    });
   }, []);
 
-  useEffect(function sendLLMRequest() {
-    window.electron.ipcRenderer.on(
-      'LangchainService:requestLLM-reply',
-      (reply) => {
-        setResponse(reply);
-        setIsLoading(false);
-      },
-    );
-  }, []);
+  // useEffect(function sendLLMRequest() {
+  //   window.electron.ipcRenderer.on(
+  //     'LangchainService:requestLLM-reply',
+  //     (reply) => {
+  //       setResponse(reply);
+  //       setIsLoading(false);
+  //     },
+  //   );
+  // }, []);
 
-  const handleSubmit = async (v: string) => {
-    if (v !== '') {
+  const handleSubmit = async (submitedText: string) => {
+    if (submitedText !== '') {
       setResponse('');
-      window.electron.ipcRenderer.sendMessage('LangchainService:requestLLM', {
-        input: v,
-        mode: 'question',
-      });
       setIsLoading(true);
+      const responseLLM = await LangChainService.getInstance().requestLLM(
+        submitedText,
+        'question',
+      );
+      if (responseLLM) {
+        setResponse(responseLLM);
+      }
+
+      setIsLoading(false);
     }
   };
 
@@ -83,24 +99,25 @@ export function Home() {
               y: number;
             }) => {
               if (definition.opacity === 0) {
-                // window.electron.ipcRenderer.sendMessage('request-close-window');
                 setValue('');
                 setResponse('');
               }
             }}
           >
-            <SearchBar
-              value={value}
-              onChange={setValue}
-              onSubmit={handleSubmit}
-            />
+            <div className="interactive w-96">
+              <SearchBar
+                value={value}
+                onChange={setValue}
+                onSubmit={handleSubmit}
+              />
 
-            {(isLoading || response) && (
-              <div className="mt-4 p-4 rounded-md bg-white bg-opacity-80 animate-in">
-                {response}
-                {isLoading && <LoadingSpinner />}
-              </div>
-            )}
+              {(isLoading || response) && (
+                <div className="mt-4 p-4 rounded-md bg-white animate-in">
+                  {response}
+                  {isLoading && <LoadingSpinner />}
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

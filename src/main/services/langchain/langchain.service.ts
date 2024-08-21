@@ -1,10 +1,6 @@
 import { Ollama } from '@langchain/ollama';
-import { PromptTemplate } from '@langchain/core/prompts';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  ExposableToRenderer,
-  exposedToRenderer,
-} from '../../utils/expose-renderer.decorator';
+
 import { LLMMode } from './langchain.service.type';
 import { PROMPT_TEMPLATES } from './prompts';
 
@@ -13,7 +9,7 @@ interface ControllerEntry {
   controller: AbortController;
 }
 
-@ExposableToRenderer()
+// @ExposableToRenderer()
 export class LangChainService {
   // eslint-disable-next-line no-use-before-define
   private static instance: LangChainService | null = null;
@@ -44,7 +40,7 @@ export class LangChainService {
     return LangChainService.instance;
   }
 
-  @exposedToRenderer()
+  // @exposedToRenderer()
   async abortAllRequests() {
     LangChainService.abortControllers.forEach((entry) => {
       console.log(
@@ -73,7 +69,7 @@ export class LangChainService {
       LangChainService.abortControllers.filter((entry) => entry.id !== id);
   }
 
-  @exposedToRenderer()
+  // @exposedToRenderer()
   async requestLLM(input: string, mode: LLMMode) {
     const id = uuidv4();
     const controller = new AbortController();
