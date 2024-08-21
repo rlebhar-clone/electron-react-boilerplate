@@ -70,23 +70,26 @@ export class LangChainService {
   }
 
   // @exposedToRenderer()
-  async requestLLM(input: string, mode: LLMMode) {
+  async *requestLLM(input: string, mode: LLMMode) {
     const id = uuidv4();
     const controller = new AbortController();
     try {
       const promptString = PROMPT_TEMPLATES[mode];
 
       LangChainService.abortControllers.push({ id, controller });
-      const response = await LangChainService.llm.invoke(promptString + input, {
+      const stream = await LangChainService.llm.stream(promptString + input, {
         signal: controller.signal,
       });
 
+      for await (const chunk of stream) {
+        yield chunk;
+      }
+
       this.removeAbortController(id);
-      return response;
     } catch (error) {
       console.log('ERROR', error);
       this.removeAbortController(id);
-      return null;
+      yield null;
     }
   }
 }

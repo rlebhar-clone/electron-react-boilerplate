@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   cn,
-  logToMain,
   logToMain,
   makeInteractiveClassClickable,
 } from '@/renderer/libs/utils';
@@ -12,7 +11,7 @@ import { SearchBar } from '../../components/features/searchbar';
 
 export function Home() {
   const [value, setValue] = useState<string>('');
-  const [response, setResponse] = useState<string>('');
+  const [streamedResponse, setStreamedResponse] = useState<string>('');
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -20,7 +19,7 @@ export function Home() {
     logToMain('stopAndResetAll()...');
     LangChainService.getInstance().abortAllRequests();
     setIsVisible(false);
-    setResponse('');
+    setStreamedResponse('');
     setValue('');
     setIsLoading(false);
   };
@@ -66,21 +65,29 @@ export function Home() {
   //   );
   // }, []);
 
-  const handleSubmit = async (submitedText: string) => {
-    if (submitedText !== '') {
-      setResponse('');
+  const handleSubmit = useCallback(async (submittedText: string) => {
+    if (submittedText !== '') {
+      setStreamedResponse('');
       setIsLoading(true);
-      const responseLLM = await LangChainService.getInstance().requestLLM(
-        submitedText,
-        'question',
-      );
-      if (responseLLM) {
-        setResponse(responseLLM);
-      }
 
-      setIsLoading(false);
+      try {
+        const stream = LangChainService.getInstance().requestLLM(
+          submittedText,
+          'question',
+        );
+
+        for await (const chunk of stream) {
+          if (chunk) {
+            setStreamedResponse((prev) => prev + chunk);
+          }
+        }
+      } catch (error) {
+        console.error('Error in streaming:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
-  };
+  }, []);
 
   return (
     <div
@@ -105,8 +112,7 @@ export function Home() {
               y: number;
             }) => {
               if (definition.opacity === 0) {
-                setValue('');
-                setResponse('');
+                stopAndResetAll();
               }
             }}
           >
@@ -117,9 +123,9 @@ export function Home() {
                 onSubmit={handleSubmit}
               />
 
-              {(isLoading || response) && (
+              {(isLoading || streamedResponse) && (
                 <div className="mt-4 p-4 rounded-md bg-white animate-in">
-                  {response}
+                  {streamedResponse}
                   {isLoading && <LoadingSpinner />}
                 </div>
               )}
