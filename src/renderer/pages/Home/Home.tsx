@@ -5,15 +5,14 @@ import {
   logToMain,
   makeInteractiveClassClickable,
 } from '@/renderer/libs/utils';
-import { LoadingSpinner } from '@/renderer/components/ui/loading-spinner';
 import { LangChainService } from '@/main/services/langchain/langchain.service';
+import { Response } from '@/renderer/components/features/response';
 import { SearchBar } from '../../components/features/searchbar';
 
 export function Home() {
   const [value, setValue] = useState<string>('');
   const [streamedResponse, setStreamedResponse] = useState<string>('');
   const [isVisible, setIsVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const stopAndResetAll = () => {
     logToMain('stopAndResetAll()...');
@@ -21,7 +20,6 @@ export function Home() {
     setIsVisible(false);
     setStreamedResponse('');
     setValue('');
-    setIsLoading(false);
   };
 
   useEffect(makeInteractiveClassClickable, []);
@@ -30,8 +28,6 @@ export function Home() {
     function focusMainWindowOnVisible() {
       if (isVisible) {
         window.electron.ipcRenderer.sendMessage('request-focus-window');
-      } else {
-        stopAndResetAll();
       }
     },
     [isVisible],
@@ -51,24 +47,14 @@ export function Home() {
       }
     });
     window.electron.ipcRenderer.on('on-main-window-blur', () => {
-      stopAndResetAll();
+      logToMain('BLUR');
+      // stopAndResetAll();
     });
   }, []);
-
-  // useEffect(function sendLLMRequest() {
-  //   window.electron.ipcRenderer.on(
-  //     'LangchainService:requestLLM-reply',
-  //     (reply) => {
-  //       setResponse(reply);
-  //       setIsLoading(false);
-  //     },
-  //   );
-  // }, []);
 
   const handleSubmit = useCallback(async (submittedText: string) => {
     if (submittedText !== '') {
       setStreamedResponse('');
-      setIsLoading(true);
 
       try {
         const stream = LangChainService.getInstance().requestLLM(
@@ -83,56 +69,50 @@ export function Home() {
         }
       } catch (error) {
         console.error('Error in streaming:', error);
-      } finally {
-        setIsLoading(false);
       }
     }
   }, []);
 
   return (
-    <div
-      id="container"
-      className={cn('w-full h-full flex', isVisible && 'bg-white/20')}
-    >
-      <AnimatePresence>
-        {isVisible && (
-          <motion.div
-            key="modal"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            transition={{
-              type: 'spring',
-              stiffness: 300,
-              damping: 30,
-              duration: 0.15,
-            }}
-            onAnimationComplete={(definition: {
-              opacity: number;
-              y: number;
-            }) => {
-              if (definition.opacity === 0) {
-                stopAndResetAll();
-              }
-            }}
-          >
-            <div className="interactive w-96">
-              <SearchBar
-                value={value}
-                onChange={setValue}
-                onSubmit={handleSubmit}
-              />
+    <div id="container" className={cn('w-full h-full', isVisible && '')}>
+      <div className="flex justify-center mt-10">
+        <AnimatePresence>
+          {isVisible && (
+            <motion.div
+              key="modal"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{
+                type: 'spring',
+                stiffness: 300,
+                damping: 30,
+                duration: 0.15,
+              }}
+              onAnimationComplete={(definition: {
+                opacity: number;
+                y: number;
+              }) => {
+                if (definition.opacity === 0) {
+                  stopAndResetAll();
+                }
+              }}
+            >
+              <div id="ai-container" className="interactive w-96">
+                <SearchBar
+                  value={value}
+                  onChange={setValue}
+                  onSubmit={handleSubmit}
+                />
 
-              {(isLoading || streamedResponse) && (
-                <div className="mt-4 p-4 rounded-md bg-white animate-in">
-                  {streamedResponse}
-                  {isLoading && <LoadingSpinner />}
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                {streamedResponse && (
+                  <Response streamedResponse={streamedResponse} />
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

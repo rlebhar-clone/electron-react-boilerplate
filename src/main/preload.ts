@@ -11,7 +11,8 @@ export type Channels =
   | 'LangchainService:requestLLM-reply'
   | 'set-ignore-mouse-events'
   | 'request-focus-window'
-  | 'on-main-window-blur';
+  | 'on-main-window-blur'
+  | 'copy-text-to-clipboard-request';
 
 const electronHandler = {
   ipcRenderer: {

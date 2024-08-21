@@ -23,6 +23,8 @@ module.exports = {
     'global-require': 'off',
     'react/require-default-props': 'off',
     'no-restricted-syntax': 'off',
+    'jsx-a11y/control-has-associated-label': 'off',
+    "jsx-a11y/click-events-have-key-events"
   },
   parserOptions: {
     ecmaVersion: 2022,

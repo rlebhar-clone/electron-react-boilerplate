@@ -18,8 +18,8 @@ export function initWindow() {
     hasShadow: false,
     visualEffectState: 'inactive',
     webPreferences: {
-      // devTools: false,
-      devTools: true,
+      devTools: false,
+      // devTools: true,
       nodeIntegration: true,
       contextIsolation: true,
       preload: app.isPackaged

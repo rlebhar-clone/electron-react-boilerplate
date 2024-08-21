@@ -17,6 +17,7 @@ export function makeInteractiveClassClickable() {
   window.addEventListener('mousemove', () => {
     const interactiveElements = document.querySelectorAll('.interactive');
     interactiveElements.forEach((element) => {
+      logToMain('interactive element ' + element.id);
       if (!element.hasAttribute('data-listeners-added')) {
         element.addEventListener('mouseenter', () => {
           window.electron.ipcRenderer.sendMessage(

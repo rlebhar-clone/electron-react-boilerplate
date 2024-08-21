@@ -199,6 +199,7 @@ export function PlaceholdersAndVanishInput({
             onChange && onChange(e);
           }
         }}
+        id="ai-input"
         onKeyDown={handleKeyDown}
         ref={inputRef}
         value={value}

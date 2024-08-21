@@ -1,4 +1,4 @@
-import { BrowserWindow, globalShortcut, ipcMain } from 'electron';
+import { BrowserWindow, globalShortcut, ipcMain, clipboard } from 'electron';
 import { LangChainService } from '../langchain/langchain.service';
 import { LLMMode } from '../langchain/langchain.service.type';
 
@@ -24,11 +24,11 @@ export class EventListenersService {
   public addMainEventListeners() {
     this.addCmdSListeners();
     this.addRendererLogListener();
-    // this.addRendererListenerRequestCloseWindow();
     this.addLangchainRequestListener();
     this.addIgnoreMouseEventListener();
     this.addFocusRequestListener();
     this.addBlurListener();
+    this.addCopyTextToClipboardRequestListener();
   }
 
   private addFocusRequestListener() {
@@ -69,13 +69,6 @@ export class EventListenersService {
     });
   }
 
-  private addRendererListenerRequestCloseWindow() {
-    ipcMain.on('request-close-window', () => {
-      console.log('hide window');
-      this.mainWindow?.hide();
-    });
-  }
-
   private addCmdSListeners() {
     let lastCallTime = 0;
     const debounceTime = 350; // Prevent spam
@@ -93,6 +86,12 @@ export class EventListenersService {
       this.mainWindow?.webContents.send('global-shortcut', {
         data: { shortcut: 'Escape' },
       });
+    });
+  }
+
+  private addCopyTextToClipboardRequestListener() {
+    ipcMain.on('copy-text-to-clipboard-request', (event, text) => {
+      clipboard.writeText(text);
     });
   }
 }
