@@ -39,7 +39,6 @@ export class EventListenersService {
 
   private addBlurListener() {
     this.mainWindow?.on('blur', () => {
-      console.log('blur');
       this.mainWindow?.webContents.send('on-main-window-blur');
     });
   }

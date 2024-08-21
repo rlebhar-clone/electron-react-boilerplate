@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   cn,
   logToMain,
+  logToMain,
   makeInteractiveClassClickable,
 } from '@/renderer/libs/utils';
 import { LoadingSpinner } from '@/renderer/components/ui/loading-spinner';
@@ -15,9 +16,12 @@ export function Home() {
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const closeAndReset = () => {
+  const stopAndResetAll = () => {
+    logToMain('stopAndResetAll()...');
+    LangChainService.getInstance().abortAllRequests();
     setIsVisible(false);
     setResponse('');
+    setValue('');
     setIsLoading(false);
   };
 
@@ -27,6 +31,8 @@ export function Home() {
     function focusMainWindowOnVisible() {
       if (isVisible) {
         window.electron.ipcRenderer.sendMessage('request-focus-window');
+      } else {
+        stopAndResetAll();
       }
     },
     [isVisible],
@@ -46,7 +52,7 @@ export function Home() {
       }
     });
     window.electron.ipcRenderer.on('on-main-window-blur', () => {
-      closeAndReset();
+      stopAndResetAll();
     });
   }, []);
 

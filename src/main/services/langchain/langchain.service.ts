@@ -73,13 +73,14 @@ export class LangChainService {
   async requestLLM(input: string, mode: LLMMode) {
     const id = uuidv4();
     const controller = new AbortController();
-    LangChainService.llm.bind({ signal: controller.signal });
-
     try {
       const promptString = PROMPT_TEMPLATES[mode];
 
       LangChainService.abortControllers.push({ id, controller });
-      const response = await LangChainService.llm.invoke(promptString + input);
+      const response = await LangChainService.llm.invoke(promptString + input, {
+        signal: controller.signal,
+      });
+
       this.removeAbortController(id);
       return response;
     } catch (error) {
