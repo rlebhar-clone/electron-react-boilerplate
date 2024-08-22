@@ -48,7 +48,6 @@ export function Home() {
     });
     window.electron.ipcRenderer.on('on-main-window-blur', () => {
       logToMain('BLUR');
-      // stopAndResetAll();
     });
   }, []);
 
